@@ -8,25 +8,26 @@ import {
   Post,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from './users.types';
-import type { User } from './users.types';
+import type { UserDocument } from './users.schema';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  findAll(): User[] {
+  findAll(): Promise<UserDocument[]> {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): User | string {
+  findOne(@Param('id') id: string): Promise<UserDocument> {
     return this.usersService.findOne(id);
   }
 
   @Post()
-  create(@Body() userData: CreateUserDto): User {
+  create(@Body() userData: CreateUserDto): Promise<UserDocument> {
     return this.usersService.create(userData);
   }
 
@@ -34,12 +35,12 @@ export class UsersController {
   update(
     @Param('id') id: string,
     @Body() userData: UpdateUserDto,
-  ): User | string {
+  ): Promise<UserDocument> {
     return this.usersService.update(id, userData);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): User | string {
+  remove(@Param('id') id: string): Promise<UserDocument> {
     return this.usersService.remove(id);
   }
 }
