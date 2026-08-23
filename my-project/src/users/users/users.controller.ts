@@ -7,52 +7,27 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
-interface CreateUserDto {
-  name: string;
-  email: string;
-}
-
-interface UpdateUserDto {
-  name?: string;
-  email?: string;
-}
+import { UsersService } from './users.service';
+import { CreateUserDto, UpdateUserDto } from './users.types';
+import type { User } from './users.types';
 
 @Controller('users')
 export class UsersController {
-  private users: User[] = [];
-  private nextId = 1;
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   findAll(): User[] {
-    return this.users;
+    return this.usersService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string): User | string {
-    const user = this.users.find(
-      (currentUser) => currentUser.id === Number(id),
-    );
-
-    return user ?? `User with id ${id} not found`;
+    return this.usersService.findOne(id);
   }
 
   @Post()
   create(@Body() userData: CreateUserDto): User {
-    const user: User = {
-      id: this.nextId++,
-      name: userData.name,
-      email: userData.email,
-    };
-
-    this.users.push(user);
-    return user;
+    return this.usersService.create(userData);
   }
 
   @Patch(':id')
@@ -60,29 +35,11 @@ export class UsersController {
     @Param('id') id: string,
     @Body() userData: UpdateUserDto,
   ): User | string {
-    const user = this.users.find(
-      (currentUser) => currentUser.id === Number(id),
-    );
-
-    if (!user) {
-      return `User with id ${id} not found`;
-    }
-
-    Object.assign(user, userData);
-    return user;
+    return this.usersService.update(id, userData);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string): User | string {
-    const userIndex = this.users.findIndex(
-      (currentUser) => currentUser.id === Number(id),
-    );
-
-    if (userIndex === -1) {
-      return `User with id ${id} not found`;
-    }
-
-    const [deletedUser] = this.users.splice(userIndex, 1);
-    return deletedUser;
+    return this.usersService.remove(id);
   }
 }
