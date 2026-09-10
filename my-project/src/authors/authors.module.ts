@@ -6,7 +6,6 @@ import { AuthorSchema } from './authors.schema';
 
 @Module({
   imports: [
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     MongooseModule.forFeature([{ name: 'Author', schema: AuthorSchema }]),
   ],
   controllers: [AuthorsController],
