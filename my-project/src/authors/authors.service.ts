@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
-import { Author, type AuthorDocument } from './authors.schema';
+import { type AuthorDocument } from './authors.schema';
 
 @Injectable()
 export class AuthorsService {
