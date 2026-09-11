@@ -5,10 +5,7 @@ import { BooksService } from './books.service';
 import { BookSchema } from './books.schema';
 
 @Module({
-  imports: [
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    MongooseModule.forFeature([{ name: 'Book', schema: BookSchema }]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: 'Book', schema: BookSchema }])],
   controllers: [BooksController],
   providers: [BooksService],
 })

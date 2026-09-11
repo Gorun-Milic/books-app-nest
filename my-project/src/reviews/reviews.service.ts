@@ -20,6 +20,10 @@ export class ReviewsService {
     return this.reviewModel.find({ bookId }).exec();
   }
 
+  findByUser(userId: string): Promise<ReviewDocument[]> {
+    return this.reviewModel.find({ userId }).exec();
+  }
+
   create(
     userId: string,
     bookId: string,

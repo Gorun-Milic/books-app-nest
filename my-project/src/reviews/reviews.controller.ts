@@ -26,6 +26,19 @@ export class ReviewsController {
     return this.reviewsService.findByBook(bookId);
   }
 
+  @Get('user/:userId')
+  findByUser(@Param('userId') userId: string): Promise<ReviewDocument[]> {
+    return this.reviewsService.findByUser(userId);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  findMyReviews(
+    @Req() request: Request & { user: AuthUser },
+  ): Promise<ReviewDocument[]> {
+    return this.reviewsService.findByUser(request.user.userId);
+  }
+
   @Post('book/:bookId')
   @UseGuards(JwtAuthGuard)
   create(
