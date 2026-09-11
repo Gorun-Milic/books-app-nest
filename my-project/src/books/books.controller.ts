@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { BooksService } from './books.service';
 import type { BookDocument } from './books.schema';
 
@@ -7,8 +7,12 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Get()
-  findAll(): Promise<BookDocument[]> {
-    return this.booksService.findAll();
+  findAll(
+    @Query('search') search?: string,
+    @Query('authorId') authorId?: string,
+    @Query('categoryId') categoryId?: string,
+  ): Promise<BookDocument[]> {
+    return this.booksService.findAll(search, authorId, categoryId);
   }
 
   @Get(':id')

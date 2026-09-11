@@ -10,8 +10,26 @@ export class BooksService {
     private readonly bookModel: Model<BookDocument>,
   ) {}
 
-  findAll(): Promise<BookDocument[]> {
-    return this.bookModel.find().exec();
+  findAll(
+    search?: string,
+    authorId?: string,
+    categoryId?: string,
+  ): Promise<BookDocument[]> {
+    let query = this.bookModel.find();
+
+    if (search?.trim()) {
+      query = query.where('title').regex(new RegExp(search.trim(), 'i'));
+    }
+
+    if (authorId) {
+      query = query.where('authorId').equals(authorId);
+    }
+
+    if (categoryId) {
+      query = query.where('categoryId').equals(categoryId);
+    }
+
+    return query.exec();
   }
 
   async findOne(id: string): Promise<BookDocument> {
