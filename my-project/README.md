@@ -1,98 +1,375 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Library API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Small NestJS and MongoDB backend for a library application. Users can browse books, authors, and categories, authenticate with JWT, and create reviews for books.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Project Setup
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+Run these commands from the `my-project` directory:
 
 ```bash
-$ npm install
+npm install
+npm run start:dev
 ```
 
-## Compile and run the project
+The API runs at:
+
+```text
+http://localhost:3000
+```
+
+MongoDB connection:
+
+```text
+mongodb://127.0.0.1:27017/library
+```
+
+MongoDB must be running before starting the application.
+
+## Frontend Integration
+
+The frontend does not need access to NestJS controller files. It communicates with this backend through HTTP requests.
+
+For local development, use this API base URL:
+
+```text
+http://localhost:3000
+```
+
+The frontend should store the JWT returned by login and send it on protected requests:
+
+```text
+Authorization: Bearer <accessToken>
+```
+
+IDs in the examples below are placeholders. Use the real MongoDB `_id` values returned by the API.
+
+## Authentication
+
+### Register
+
+```http
+POST /authentication/register
+```
+
+No token required.
+
+Request body:
+
+```json
+{
+  "name": "Ivana Petrovic",
+  "email": "ivana@example.com",
+  "password": "tajna-lozinka"
+}
+```
+
+Response:
+
+```json
+{
+  "id": "USER_ID",
+  "name": "Ivana Petrovic",
+  "email": "ivana@example.com"
+}
+```
+
+The password hash is never returned.
+
+### Login
+
+```http
+POST /authentication/login
+```
+
+No token required.
+
+Request body:
+
+```json
+{
+  "email": "ivana@example.com",
+  "password": "tajna-lozinka"
+}
+```
+
+Response:
+
+```json
+{
+  "accessToken": "JWT_TOKEN"
+}
+```
+
+### Current user
+
+```http
+GET /authentication/me
+```
+
+JWT required.
+
+Response:
+
+```json
+{
+  "userId": "USER_ID",
+  "email": "ivana@example.com",
+  "name": "Ivana Petrovic"
+}
+```
+
+## Books
+
+Books are currently read-only through the API. They are added directly to MongoDB or through seed data.
+
+### List books
+
+```http
+GET /books
+```
+
+No token required.
+
+Optional query parameters:
+
+- `search`: case-insensitive search in the book title
+- `authorId`: filter by author
+- `categoryId`: filter by category
+
+Examples:
+
+```text
+GET /books?search=dark
+GET /books?authorId=AUTHOR_ID
+GET /books?categoryId=CATEGORY_ID
+GET /books?search=dark&authorId=AUTHOR_ID&categoryId=CATEGORY_ID
+```
+
+Response:
+
+```json
+[
+  {
+    "_id": "BOOK_ID",
+    "title": "1984",
+    "description": "A dystopian novel.",
+    "publishedYear": 1949,
+    "authorId": "AUTHOR_ID",
+    "categoryId": "CATEGORY_ID"
+  }
+]
+```
+
+### Get one book
+
+```http
+GET /books/:id
+```
+
+No token required.
+
+Example:
+
+```text
+GET /books/BOOK_ID
+```
+
+## Authors
+
+Authors are currently read-only through the API.
+
+### List authors
+
+```http
+GET /authors
+```
+
+No token required.
+
+### Get one author
+
+```http
+GET /authors/:id
+```
+
+No token required.
+
+Author response fields:
+
+```json
+{
+  "_id": "AUTHOR_ID",
+  "firstName": "George",
+  "lastName": "Orwell",
+  "birthYear": 1903,
+  "biography": "English novelist and essayist."
+}
+```
+
+The frontend can use the author ID to request books by that author:
+
+```text
+GET /books?authorId=AUTHOR_ID
+```
+
+## Categories
+
+Categories are currently read-only through the API.
+
+### List categories
+
+```http
+GET /categories
+```
+
+No token required.
+
+### Get one category
+
+```http
+GET /categories/:id
+```
+
+No token required.
+
+Category response fields:
+
+```json
+{
+  "_id": "CATEGORY_ID",
+  "name": "Science Fiction",
+  "description": "Books about imagined science and future societies."
+}
+```
+
+The frontend can use the category ID to filter books:
+
+```text
+GET /books?categoryId=CATEGORY_ID
+```
+
+## Reviews
+
+Reviews belong to a user and a book. The `userId` is taken from the JWT token when a review is created; the frontend must not send it in the request body.
+
+### List reviews for a book
+
+```http
+GET /reviews/book/:bookId
+```
+
+No token required.
+
+Response:
+
+```json
+[
+  {
+    "_id": "REVIEW_ID",
+    "userId": "USER_ID",
+    "bookId": "BOOK_ID",
+    "rating": 5,
+    "comment": "Excellent book."
+  }
+]
+```
+
+### List reviews for the current user
+
+```http
+GET /reviews/me
+```
+
+JWT required.
+
+### List reviews for any user
+
+```http
+GET /reviews/user/:userId
+```
+
+No token required.
+
+### Create a review
+
+```http
+POST /reviews/book/:bookId
+```
+
+JWT required.
+
+Request body:
+
+```json
+{
+  "rating": 5,
+  "comment": "Excellent book."
+}
+```
+
+`rating` must be between 1 and 5.
+
+### Update a review
+
+```http
+PATCH /reviews/:id
+```
+
+JWT required. The token must belong to the user who created the review.
+
+Request body can contain one or both fields:
+
+```json
+{
+  "rating": 4,
+  "comment": "Still a very good book."
+}
+```
+
+### Delete a review
+
+```http
+DELETE /reviews/:id
+```
+
+JWT required. The token must belong to the user who created the review.
+
+## Users
+
+The user creation flow is handled by Authentication. The current Users controller exposes these endpoints:
+
+```http
+GET /users
+GET /users/:id
+PATCH /users/:id
+DELETE /users/:id
+```
+
+These endpoints currently do not have JWT guards. They are kept for learning purposes and should be protected before production use.
+
+## Suggested Frontend Pages
+
+The current API supports this small frontend:
+
+- `/login`: login and store the access token
+- `/register`: create an account
+- `/books`: list, search, and filter books
+- `/books/:id`: show book details and its reviews
+- `/authors/:id`: show author details and that author's books
+- `/profile`: call `/authentication/me` and `/reviews/me`
+
+Typical frontend flow:
+
+```text
+Register -> Login -> Books -> Book details -> Read reviews -> Add or manage own review
+```
+
+## Useful Commands
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run start:dev
+npm run build
+npm run lint
+npm run test
+npm run test:e2e
 ```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
