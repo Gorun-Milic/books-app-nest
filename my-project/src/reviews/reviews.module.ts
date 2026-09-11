@@ -6,7 +6,6 @@ import { ReviewSchema } from './reviews.schema';
 
 @Module({
   imports: [
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     MongooseModule.forFeature([{ name: 'Review', schema: ReviewSchema }]),
   ],
   controllers: [ReviewsController],
